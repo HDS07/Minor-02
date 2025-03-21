@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flood Risk Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        form {
+            width: 50%;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px;
+            background: blue;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h2>Flood Risk Prediction</h2>
+    <form id="prediction-form">
+        <input type="number" step="any" id="latitude" placeholder="Latitude" required>
+        <input type="number" step="any" id="longitude" placeholder="Longitude" required>
+        <input type="number" step="any" id="rainfall" placeholder="Rainfall (mm)" required>
+        <input type="number" step="any" id="temperature" placeholder="Temperature (°C)" required>
+        <input type="number" step="any" id="humidity" placeholder="Humidity (%)" required>
+        <input type="number" step="any" id="river_discharge" placeholder="River Discharge (m³/s)" required>
+        <input type="number" step="any" id="water_level" placeholder="Water Level (m)" required>
+        <input type="number" step="any" id="elevation" placeholder="Elevation (m)" required>
+        <select id="land_cover"  placeholder="land_cover">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+        <select id="soil_type" placeholder="soil_type">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+        <input type="number" step="any" id="population_density" placeholder="Population Density" required>
+        <input type="number" step="any" id="infrastructure" placeholder="Infrastructure Index" required>
+        <button type="submit">Predict Risk Level</button>
+    </form>
+
+    <h3 id="result"></h3>
+
+    <script>
+        document.getElementById("prediction-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            let data = {
+                latitude: parseFloat(document.getElementById("latitude").value),
+                longitude: parseFloat(document.getElementById("longitude").value),
+                rainfall: parseFloat(document.getElementById("rainfall").value),
+                temperature: parseFloat(document.getElementById("temperature").value),
+                humidity: parseFloat(document.getElementById("humidity").value),
+                river_discharge: parseFloat(document.getElementById("river_discharge").value),
+                water_level: parseFloat(document.getElementById("water_level").value),
+                elevation: parseFloat(document.getElementById("elevation").value),
+                land_cover: parseInt(document.getElementById("land_cover").value),
+                soil_type: parseInt(document.getElementById("soil_type").value),
+                population_density: parseFloat(document.getElementById("population_density").value),
+                infrastructure: parseFloat(document.getElementById("infrastructure").value),
+            };
+
+            fetch("http://127.0.0.1:8000/api/predict/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("result").innerText = "Flood Risk Level: " + data.risk_level;
+            })
+            .catch(error => console.error("Error:", error));
+        });
+    </script>
+</body>
+</html>
