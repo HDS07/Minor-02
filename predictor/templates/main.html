@@ -8,7 +8,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: linear-gradient(to bottom, #007BFF, #004B8D);
+            background: linear-gradient(to bottom, #007BFF, #064781);
             color: white;
             text-align: center;
             margin: 0;
@@ -38,25 +38,79 @@
         }
 
         .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 50px;
-            gap: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap; /* Ensures proper wrapping */
+    padding: 50px;
+    gap: 30px; /* Increased gap to prevent overlapping */
+    max-width: 90%; /* Ensures it does not stretch too much */
+    margin: 0 auto; /* Centers the container */
+}
+
+        
+.card {
+    width: 350px;
+    height: 320px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+    perspective: 1000px;
+    flex: 1 1 350px; /* Makes sure it resizes properly */
+    min-width: 300px; /* Prevents it from shrinking too much */
+    max-width: 400px; /* Ensures consistency */
+}
+
+        .card.flipped {
+            transform: rotateY(180deg);
         }
 
-        .box {
+        .card-face {
+            
+            width: 90%;
+            height: 100%;
             background: white;
             color: black;
+            border-radius: 10px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+        }
+
+        .mode-selector {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px;
+        }
+
+        .box2 {
+            background: white;
+            color: black;
             border-radius: 10px;
             width: 40%;
             box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            text-align: left;
+            padding: 20px;
+            min-width: 350px;
+        }
+
+        .box2 ol {
+            text-align: left;
+            padding-left: 20px;
         }
 
         input {
             display: block;
-            width: 100%;
+            width: 90%;
             padding: 10px;
             margin: 10px 0;
             border: 1px solid #ccc;
@@ -74,8 +128,8 @@
 
         .chatbot-button {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: 50px;
+            right: 24px;
             background-color: #0056b3;
             color: white;
             padding: 10px 15px;
@@ -87,9 +141,9 @@
 
         .chatbot-container {
             position: fixed;
-            bottom: 80px;
+            bottom: 100px;
             right: 20px;
-            width: 300px;
+            width: 330px;
             background: #222;
             color: white;
             padding: 15px;
@@ -120,7 +174,7 @@
             display: flex;
             flex-direction: column;
         }
-        
+
         .chatbot-messages p {
             background: #444;
             color: white;
@@ -131,6 +185,7 @@
             word-wrap: break-word;
             margin: 5px 0;
         }
+
         .chatbot-messages .user-message {
             background: white;
             color: black;
@@ -150,6 +205,26 @@
             border-radius: 5px;
             border: none;
         }
+
+        #contact_number {
+            position: fixed;
+            bottom: 3px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        #contact_number a {
+            color: yellow;
+            font-weight: bold;
+            text-decoration: none;
+        }
     </style>
 </head>
 
@@ -163,28 +238,51 @@
     </div>
 
     <div class="container">
-        <div class="box">
-            <h2>Enter Details for Prediction</h2>
-            <input type="text" placeholder="Latitude">
-            <input type="text" placeholder="Longitude">
-            <input type="text" placeholder="Rainfall">
-            <input type="text" placeholder="Temperature">
-            <input type="text" placeholder="River Discharge">
-            <input type="text" placeholder="Humidity">
-            <button class="predict-button" onclick="predictFlood()">Predict</button>
+        <div class="card" id="flip-card">
+            <select class="mode-selector" id="mode-selector" onchange="toggleMode()">
+                <option value="basic">Basics</option>
+                <option value="advanced">Advanced</option>
+            </select>
+            <div class="card-face card-front">
+                <h2>Enter Details for Prediction</h2>
+                <input type="text" id="latitude" placeholder="Latitude">
+                <input type="text" id="longitude" placeholder="Longitude">
+                <button class="predict-button" onclick="predictFlood()">Predict</button>
+            </div>
+            <div class="card-face card-back">
+                <h2>Enter Advanced Details</h2>
+                <input type="text" id="latitude-adv" placeholder="Latitude">
+                <input type="text" id="longitude-adv" placeholder="Longitude">
+                <input type="text" id="rainfall" placeholder="Rainfall">
+                <input type="text" id="temperature" placeholder="Temperature">
+                <input type="text" id="humidity" placeholder="Humidity">
+                <button class="predict-button" onclick="predictFlood()">Predict</button>
+            </div>
         </div>
-        <div class="box">
+        <div class="box2">
             <h2>Flood Risk Level</h2>
             <p id="risk-level">No Prediction Yet</p>
+
             <h2>Safety Measures</h2>
-            <ul>
-                <li>Stay updated with weather reports.</li>
-                <li>Evacuate if necessary.</li>
-                <li>Keep emergency supplies ready.</li>
-            </ul>
-            <h2>Nearest Rescue Team</h2>
-            <p id="rescue-team">Loading...</p>
+            <div style="font-size: 16px; line-height: 1.7;">
+                <ol>
+                    <li><strong>Move to Higher Ground:</strong> Avoid staying in low-lying areas.</li>
+                    <li><strong>Avoid Walking or Driving in Floodwaters:</strong> Just 6 inches of moving water can
+                        knock a person down, and 12 inches can sweep away a vehicle.</li>
+                    <li><strong>Stay Away from Electrical Wires:</strong> Downed power lines in water are extremely
+                        dangerous.</li>
+                    <li><strong>Follow Evacuation Orders:</strong> Listen to local authorities and move to designated
+                        shelters if required.</li>
+                    <li><strong>Use a Radio or Mobile Alerts:</strong> Stay updated with emergency broadcasts.</li>
+                </ol>
+            </div>
         </div>
+    </div>
+    <div id="contact_number">
+        📞 <span style="color: white;">National Disaster Response Force(NDRF) Helpline: </span>
+        <a href="tel:01124363260">011-24363260</a> or
+        <a href="tel:9711077372">9711077372</a>
+
     </div>
 
 
@@ -199,12 +297,50 @@
         <input type="text" class="chatbot-input" id="chatbot-input" placeholder="Ask a flood-related question..."
             onkeypress="handleKeyPress(event)">
     </div>
+
     <script>
-        function predictFlood() {
-            const riskLevels = ["Very Low", "Low", "High", "Very High"];
-            document.getElementById("risk-level").innerText = riskLevels[Math.floor(Math.random() * riskLevels.length)];
-            document.getElementById("rescue-team").innerText = "+123-456-7890 (Nearest Rescue Team)";
+
+        async function predictFlood() {
+            let latitude = document.getElementById("latitude").value;
+            let longitude = document.getElementById("longitude").value;
+
+            if (!latitude || !longitude) {
+                alert("Please enter both latitude and longitude!");
+                return;
+            }
+
+            try {
+                let response = await fetch("/predict_risk/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ latitude: parseFloat(latitude), longitude: parseFloat(longitude) })
+                });
+
+                if (!response.ok) throw new Error("Server error");
+
+                let data = await response.json();
+                if (data.error) {
+                    document.getElementById("risk-level").innerText = "Error: " + data.error;
+                } else {
+                    document.getElementById("risk-level").innerText = "Flood Risk: " + data.risk_level;
+                }
+
+            } catch (error) {
+                document.getElementById("risk-level").innerText = "Prediction failed!";
+                console.error("Error:", error);
+            }
         }
+    
+        function toggleMode() {
+            let card = document.getElementById("flip-card");
+            let mode = document.getElementById("mode-selector").value;
+            if (mode === "advanced") {
+                card.classList.add("flipped");
+            } else {
+                card.classList.remove("flipped");
+            }
+        }
+
         function toggleChatbot() {
             let chatbot = document.getElementById("chatbot");
             chatbot.style.display = chatbot.style.display === "none" || chatbot.style.display === "" ? "block" : "none";
@@ -226,22 +362,29 @@
             let messageBox = document.getElementById("chatbot-messages");
             let message = document.createElement("p");
             message.textContent = text;
-            if (isUser) {
-                message.classList.add("user-message");
-            }
+            message.classList.add(isUser ? "user-message" : "bot-message");
             messageBox.appendChild(message);
             messageBox.scrollTop = messageBox.scrollHeight;
         }
 
-
         async function fetchResponse(question) {
-            let response = await fetch("/chatbot/", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ question: question })
-            });
-            let data = await response.json();
-            appendMessage("FloodBot: " + data.answer);
+            try {
+                let response = await fetch("/chatbot/", {  // Ensure this endpoint matches your Django URL
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ question: question })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Server error: " + response.status);
+                }
+
+                let data = await response.json();
+                appendMessage("FloodBot: " + (data.answer || "I couldn't understand that."));
+            } catch (error) {
+                appendMessage("FloodBot: Sorry, I am unable to respond right now.");
+                console.error("Chatbot Error:", error);
+            }
         }
     </script>
 </body>
