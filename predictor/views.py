@@ -6,6 +6,7 @@ import json
 import requests
 from django.views.decorators.csrf import csrf_exempt
 from transformers import pipeline
+from .models import FloodPrediction
 
 model_path = "predictor/random_forest_model.pkl"
 with open(model_path, "rb") as file:
@@ -25,6 +26,7 @@ risk_mapping = {
 def home(request):
     return render(request, 'main.html')
 
+
 def get_weather_data(latitude, longitude):
 
     try:
@@ -40,6 +42,7 @@ def get_weather_data(latitude, longitude):
     except Exception as e:
         print(f"Error fetching weather data: {e}")
     return None  # Return None if API fails
+
 
 def get_elevation(latitude, longitude):
     try:
@@ -79,6 +82,18 @@ def predict_risk(request):
             water_level =0.9155 
             population_density = 5413.902  
 
+            prediction_record = FloodPrediction(
+                latitude=latitude,
+                longitude=longitude,
+                water_level=water_level,
+                river_discharge=river_discharge,
+                rainfall=weather_data['rainfall'],
+                elevation=elevation,
+                humidity=weather_data['humidity'],
+                temperature=weather_data['temperature'],
+                population_density=population_density
+            )
+
             # Ensure the feature order matches the training data
             features = np.array([[  
                 water_level,               
@@ -98,11 +113,89 @@ def predict_risk(request):
             # **Convert numerical prediction to label**
             prediction_label = label_encoder.inverse_transform([prediction_numeric])[0]
 
+            # Add prediction to the object
+            prediction_record.predicted_risk = prediction_label
+
+            # Save the object
+            prediction_record.save()
+
             return JsonResponse({'risk_level': prediction_label})
         
         except Exception as e:
             print(f"Error in prediction: {e}")  # Debugging log
             return JsonResponse({'error': str(e)})   
+
+
+
+@csrf_exempt
+def predict_advanced_risk(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            latitude = data.get("latitude")
+            longitude = data.get("longitude")
+            rainfall = data.get("rainfall")
+            temperature = data.get("temperature")
+            humidity = data.get("humidity")
+
+            # Validate inputs
+            if None in (latitude, longitude, rainfall, temperature, humidity):
+                return JsonResponse({'error': 'Incomplete input data. Please provide latitude, longitude, rainfall, temperature, and humidity.'})
+
+            # Fetch additional features from APIs or fallback
+            # elevation = get_elevation(latitude, longitude)
+            elevation= None
+            if elevation is None:
+                elevation = 0.1315  # Default/fallback value
+
+            # Placeholder values (replace with API integration if needed)
+            river_discharge = 0.6683
+            water_level = 0.258
+            population_density = 3630.70
+
+            prediction_record = FloodPrediction(
+                latitude=latitude,
+                longitude=longitude,
+                water_level=water_level,
+                river_discharge=river_discharge,
+                rainfall=rainfall,
+                elevation=elevation,
+                humidity=humidity,
+                temperature=temperature,
+                population_density=population_density
+            )
+
+            # Prepare feature array for model input
+            features = np.array([[  
+                water_level,               
+                river_discharge,           
+                rainfall,                  
+                elevation,                 
+                humidity,                  
+                temperature,               
+                population_density         
+            ]])
+
+            features = scaler.transform(features)
+
+            prediction_numeric = model.predict(features)[0]
+            prediction_label = label_encoder.inverse_transform([prediction_numeric])[0]
+
+            # Store prediction result
+            prediction_record.predicted_risk = prediction_label
+
+            # Save record to database
+            prediction_record.save()
+
+            return JsonResponse({'risk_level': prediction_label})
+
+        except Exception as e:
+            print(f"Error in advanced prediction: {e}")
+            return JsonResponse({'error': str(e)})
+
+
+
+
 
 qa_pipeline = pipeline("question-answering", model="deepset/roberta-base-squad2")
 

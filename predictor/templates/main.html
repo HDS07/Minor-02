@@ -61,12 +61,12 @@
             transition: transform 0.5s;
             color: black;
         }
-        
-        .form-group1{
+
+        .form-group1 {
             text-align: left;
         }
 
-        .form-group2{
+        .form-group2 {
             text-align: left;
         }
 
@@ -84,7 +84,7 @@
             padding: 20px;
             border-radius: 10px;
         }
-        
+
         .card .back {
             transform: rotateY(180deg);
         }
@@ -130,7 +130,7 @@
         /* .card .back .dropdown-container {
             transform: rotateY(180deg);
         } */
-        
+
         .box2 {
             background: white;
             color: black;
@@ -143,7 +143,7 @@
             min-width: 350px;
             margin: 10px;
         }
-    
+
         .box2 ol {
             text-align: left;
             padding-left: 20px;
@@ -293,7 +293,7 @@
                         <label>Humidity:</label>
                         <input type="text" placeholder="Enter humidity">
                     </div>
-                    <button class="predict-btn" onclick="predictFlood()">Predict</button>
+                    <button class="predict-btn" onclick="predictAdvancedFlood()">Predict</button>
                 </div>
             </div>
         </div>
@@ -380,6 +380,46 @@
                 console.error("Error:", error);
             }
         }
+
+
+
+        async function predictAdvancedFlood() {
+            const inputs = document.querySelectorAll(".form-group2 input");
+            let [latitude, longitude, rainfall, temperature, humidity] = Array.from(inputs).map(i => i.value);
+
+            if (!latitude || !longitude || !rainfall || !temperature || !humidity) {
+                alert("Please fill in all advanced prediction fields!");
+                return;
+            }
+
+            try {
+                let response = await fetch("/predict_advanced_risk/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        latitude: parseFloat(latitude),
+                        longitude: parseFloat(longitude),
+                        rainfall: parseFloat(rainfall),
+                        temperature: parseFloat(temperature),
+                        humidity: parseFloat(humidity)
+                    })
+                });
+
+                if (!response.ok) throw new Error("Server error");
+
+                let data = await response.json();
+                if (data.error) {
+                    document.getElementById("risk-level").innerText = "Error: " + data.error;
+                } else {
+                    document.getElementById("risk-level").innerText = "Flood Risk: " + data.risk_level;
+                }
+
+            } catch (error) {
+                document.getElementById("risk-level").innerText = "Prediction failed!";
+                console.error("Error:", error);
+            }
+        }
+
 
         // function toggleMode() {
         //     let card = document.getElementById("flip-card");
