@@ -6,6 +6,7 @@ import json
 import requests
 from django.views.decorators.csrf import csrf_exempt
 from transformers import pipeline
+from .models import FloodPrediction
 
 model_path = "predictor/random_forest_model.pkl"
 with open(model_path, "rb") as file:
@@ -81,6 +82,18 @@ def predict_risk(request):
             water_level =0.9155 
             population_density = 5413.902  
 
+            prediction_record = FloodPrediction(
+                latitude=latitude,
+                longitude=longitude,
+                water_level=water_level,
+                river_discharge=river_discharge,
+                rainfall=weather_data['rainfall'],
+                elevation=elevation,
+                humidity=weather_data['humidity'],
+                temperature=weather_data['temperature'],
+                population_density=population_density
+            )
+
             # Ensure the feature order matches the training data
             features = np.array([[  
                 water_level,               
@@ -99,6 +112,12 @@ def predict_risk(request):
 
             # **Convert numerical prediction to label**
             prediction_label = label_encoder.inverse_transform([prediction_numeric])[0]
+
+            # Add prediction to the object
+            prediction_record.predicted_risk = prediction_label
+
+            # Save the object
+            prediction_record.save()
 
             return JsonResponse({'risk_level': prediction_label})
         
@@ -134,6 +153,18 @@ def predict_advanced_risk(request):
             water_level = 0.258
             population_density = 3630.70
 
+            prediction_record = FloodPrediction(
+                latitude=latitude,
+                longitude=longitude,
+                water_level=water_level,
+                river_discharge=river_discharge,
+                rainfall=rainfall,
+                elevation=elevation,
+                humidity=humidity,
+                temperature=temperature,
+                population_density=population_density
+            )
+
             # Prepare feature array for model input
             features = np.array([[  
                 water_level,               
@@ -149,6 +180,12 @@ def predict_advanced_risk(request):
 
             prediction_numeric = model.predict(features)[0]
             prediction_label = label_encoder.inverse_transform([prediction_numeric])[0]
+
+            # Store prediction result
+            prediction_record.predicted_risk = prediction_label
+
+            # Save record to database
+            prediction_record.save()
 
             return JsonResponse({'risk_level': prediction_label})
 
