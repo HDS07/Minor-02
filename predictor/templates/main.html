@@ -38,92 +38,115 @@
         }
 
         .container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap; /* Ensures proper wrapping */
-    padding: 50px;
-    gap: 30px; /* Increased gap to prevent overlapping */
-    max-width: 90%; /* Ensures it does not stretch too much */
-    margin: 0 auto; /* Centers the container */
-}
+            display: flex;
+            justify-content: center;
+            /* align-items: space-between; */
+            flex-wrap: wrap;
+            gap: 50px;
+            padding: 30px;
+        }
 
+
+        .card-container {
+            position: relative;
+            margin-top: 40px;
+            margin-right: 40px;
+        }
+
+        .card {
+            width: 350px;
+            height: 400px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+            color: black;
+        }
         
-.card {
-    width: 350px;
-    height: 320px;
-    position: relative;
-    transform-style: preserve-3d;
-    transition: transform 0.5s;
-    perspective: 1000px;
-    flex: 1 1 350px; /* Makes sure it resizes properly */
-    min-width: 300px; /* Prevents it from shrinking too much */
-    max-width: 400px; /* Ensures consistency */
-}
+        .form-group1{
+            text-align: left;
+        }
+
+        .form-group2{
+            text-align: left;
+        }
 
         .card.flipped {
             transform: rotateY(180deg);
         }
 
-        .card-face {
-            
-            width: 90%;
+        .card .side {
+            position: absolute;
+            width: 100%;
             height: 100%;
-            background: white;
-            color: black;
-            border-radius: 10px;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
             backface-visibility: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            background: white;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
             padding: 20px;
+            border-radius: 10px;
         }
-
-        .card-back {
+        
+        .card .back {
             transform: rotateY(180deg);
         }
 
-        .mode-selector {
+        .dropdown-container {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 5px;
+            top: -33px;
+            right: -38px;
+            z-index: 10;
         }
 
+        .dropdown {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: white;
+            cursor: pointer;
+        }
+
+        input {
+            width: 96%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 6px;
+            margin-bottom: 10px;
+        }
+
+        .predict-btn {
+            width: 100%;
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .predict-btn:hover {
+            background: #218838;
+        }
+
+        /* .card .back .dropdown-container {
+            transform: rotateY(180deg);
+        } */
+        
         .box2 {
             background: white;
             color: black;
             border-radius: 10px;
             width: 40%;
+            max-width: 500px;
             box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
             text-align: left;
-            padding: 20px;
+            padding: 25px;
             min-width: 350px;
+            margin: 10px;
         }
-
+    
         .box2 ol {
             text-align: left;
             padding-left: 20px;
-        }
-
-        input {
-            display: block;
-            width: 90%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .predict-button {
-            background: #0056b3;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
         }
 
         .chatbot-button {
@@ -238,25 +261,40 @@
     </div>
 
     <div class="container">
-        <div class="card" id="flip-card">
-            <select class="mode-selector" id="mode-selector" onchange="toggleMode()">
-                <option value="basic">Basics</option>
-                <option value="advanced">Advanced</option>
-            </select>
-            <div class="card-face card-front">
-                <h2>Enter Details for Prediction</h2>
-                <input type="text" id="latitude" placeholder="Latitude">
-                <input type="text" id="longitude" placeholder="Longitude">
-                <button class="predict-button" onclick="predictFlood()">Predict</button>
+        <div class="card-container">
+            <div class="dropdown-container">
+                <select class="dropdown" onchange="flipCard(this.value)">
+                    <option value="basic" selected>Basics</option>
+                    <option value="advanced">Advanced</option>
+                </select>
             </div>
-            <div class="card-face card-back">
-                <h2>Enter Advanced Details</h2>
-                <input type="text" id="latitude-adv" placeholder="Latitude">
-                <input type="text" id="longitude-adv" placeholder="Longitude">
-                <input type="text" id="rainfall" placeholder="Rainfall">
-                <input type="text" id="temperature" placeholder="Temperature">
-                <input type="text" id="humidity" placeholder="Humidity">
-                <button class="predict-button" onclick="predictFlood()">Predict</button>
+            <div class="card" id="flipCard">
+                <div class="side front">
+                    <h3>Enter the details for Prediction</h3>
+                    <div class="form-group1">
+                        <label>Latitude:</label>
+                        <input type="text" id="latitude" placeholder="Enter latitude">
+                        <label>Longitude:</label>
+                        <input type="text" id="longitude" placeholder="Enter longitude">
+                    </div>
+                    <button class="predict-btn" onclick="predictFlood()">Predict</button>
+                </div>
+                <div class="side back">
+                    <h3>Enter details for Advanced Prediction</h3>
+                    <div class="form-group2">
+                        <label>Latitude:</label>
+                        <input type="text" placeholder="Enter latitude">
+                        <label>Longitude:</label>
+                        <input type="text" placeholder="Enter longitude">
+                        <label>Rainfall:</label>
+                        <input type="text" placeholder="Enter rainfall">
+                        <label>Temperature:</label>
+                        <input type="text" placeholder="Enter temperature">
+                        <label>Humidity:</label>
+                        <input type="text" placeholder="Enter humidity">
+                    </div>
+                    <button class="predict-btn" onclick="predictFlood()">Predict</button>
+                </div>
             </div>
         </div>
         <div class="box2">
@@ -300,6 +338,18 @@
 
     <script>
 
+        function flipCard(value) {
+            const card = document.getElementById("flipCard");
+            const dropdownContainer = document.querySelector(".dropdown-container");
+            if (value === "advanced") {
+                card.classList.add("flipped");
+                dropdownContainer.style.right = "0px";
+            } else {
+                card.classList.remove("flipped");
+                dropdownContainer.style.right = "-38px";
+            }
+        }
+
         async function predictFlood() {
             let latitude = document.getElementById("latitude").value;
             let longitude = document.getElementById("longitude").value;
@@ -330,16 +380,16 @@
                 console.error("Error:", error);
             }
         }
-    
-        function toggleMode() {
-            let card = document.getElementById("flip-card");
-            let mode = document.getElementById("mode-selector").value;
-            if (mode === "advanced") {
-                card.classList.add("flipped");
-            } else {
-                card.classList.remove("flipped");
-            }
-        }
+
+        // function toggleMode() {
+        //     let card = document.getElementById("flip-card");
+        //     let mode = document.getElementById("mode-selector").value;
+        //     if (mode === "advanced") {
+        //         card.classList.add("flipped");
+        //     } else {
+        //         card.classList.remove("flipped");
+        //     }
+        // }
 
         function toggleChatbot() {
             let chatbot = document.getElementById("chatbot");
