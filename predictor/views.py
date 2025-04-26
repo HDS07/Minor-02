@@ -26,33 +26,60 @@ def home(request):
     return render(request, 'main.html')
 
 
-def get_weather_data(latitude, longitude):
+OPENWEATHER_API_KEY = '7b83fafd2504ba3e28e0ad68ccc31ef5'  # make sure your key is set
 
+def get_weather_data(latitude, longitude):
     try:
         url = f"https://api.openweathermap.org/data/2.5/weather?lat={latitude}&lon={longitude}&appid={OPENWEATHER_API_KEY}&units=metric"
         response = requests.get(url)
+
         if response.status_code == 200:
             data = response.json()
+
+            temperature = data.get("main", {}).get("temp")
+            humidity = data.get("main", {}).get("humidity")
+            rainfall = data.get("rain", {}).get("1h", 0)  # default to 0 if no rain data
+
             return {
-                "rainfall": data.get("rain", {}).get("1h", 0),  # Default to 0 if no rain data
-                "temperature": data["main"]["temp"],
-                "humidity": data["main"]["humidity"]
+                "temperature": temperature,
+                "humidity": humidity,
+                "rainfall": rainfall
             }
+        else:
+            print(f"Failed to fetch weather data. Status code: {response.status_code}")
     except Exception as e:
         print(f"Error fetching weather data: {e}")
-    return None  # Return None if API fails
+
+    return None  # Return None if API call fails
 
 
-def get_elevation(latitude, longitude):
-    try:
-        url = f"https://api.open-elevation.com/api/v1/lookup?locations={latitude},{longitude}"
-        response = requests.get(url)
-        if response.status_code == 200:
-            data = response.json()
-            return data["results"][0]["elevation"]
-    except Exception as e:
-        print(f"Error fetching elevation data: {e}")
-    return None  # Return None if API fails
+# def get_weather_data(latitude, longitude):
+
+#     try:
+#         url = f"https://api.openweathermap.org/data/2.5/weather?lat={latitude}&lon={longitude}&appid={OPENWEATHER_API_KEY}&units=metric"
+#         response = requests.get(url)
+#         if response.status_code == 200:
+#             data = response.json()
+#             return {
+#                 "rainfall": data.get("rain", {}).get("1h", 0),  # Default to 0 if no rain data
+#                 "temperature": data["main"]["temp"],
+#                 "humidity": data["main"]["humidity"]
+#             }
+#     except Exception as e:
+#         print(f"Error fetching weather data: {e}")
+#     return None  # Return None if API fails
+
+
+# def get_elevation(latitude, longitude):
+#     try:
+#         url = f"https://api.open-elevation.com/api/v1/lookup?locations={latitude},{longitude}"
+#         response = requests.get(url)
+#         if response.status_code == 200:
+#             data = response.json()
+#             return data["results"][0]["elevation"]
+#     except Exception as e:
+#         print(f"Error fetching elevation data: {e}")
+#     return None  # Return None if API fails
 
 @csrf_exempt
 def predict_risk(request):
@@ -63,7 +90,7 @@ def predict_risk(request):
             longitude = data.get("longitude")
 
             # Fetch environmental data
-            # weather_data = get_weather_data(latitude, longitude)
+            weather_data = get_weather_data(latitude, longitude)
             # elevation = get_elevation(latitude, longitude)
 
             
