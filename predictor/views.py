@@ -7,12 +7,11 @@ import requests
 from django.views.decorators.csrf import csrf_exempt
 from transformers import pipeline
 
-model_path = "predictor/random_forest_model.pkl"
+model_path = "predictor/svm_model.pkl"
 with open(model_path, "rb") as file:
     model, label_encoder, scaler = pickle.load(file)  
     
-# OpenWeather API Key (Replace with your actual API key)
-OPENWEATHER_API_KEY = "your_openweather_api_key"
+
 
 # Risk level mapping
 risk_mapping = {
@@ -71,15 +70,15 @@ def predict_risk(request):
             elevation = None
             
             if weather_data is None:
-                weather_data = {"rainfall": 0.462, "temperature":26.792, "humidity":97.092}
+                weather_data = {"rainfall": 0.899, "temperature":39.601, "humidity":54.229}
             
             if elevation is None:
-                elevation =0.8603  
+                elevation =0.335 
 
             # Placeholder values for other features (these should ideally come from APIs or GIS data)
-            river_discharge = 0.8833  
-            water_level =0.9155 
-            population_density = 5413.902  
+            river_discharge =  0.747 
+            water_level =0.397 
+            population_density = 457.423  
 
             # Ensure the feature order matches the training data
             features = np.array([[  
