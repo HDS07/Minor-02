@@ -55,11 +55,12 @@
 
         .card {
             width: 350px;
-            height: 400px;
+            height: 510px;
             position: relative;
             transform-style: preserve-3d;
             transition: transform 0.5s;
             color: black;
+            margin-bottom: 10px;
         }
 
         .form-group1 {
@@ -77,7 +78,7 @@
         .card .side {
             position: absolute;
             width: 100%;
-            height: 100%;
+            
             backface-visibility: hidden;
             background: white;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
@@ -109,7 +110,7 @@
             padding: 5px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            margin-top: 6px;
+            margin-top: 2px;
             margin-bottom: 10px;
         }
 
@@ -141,7 +142,8 @@
             text-align: left;
             padding: 25px;
             min-width: 350px;
-            margin: 10px;
+            margin-top: 50px;
+            margin-left: 10px;
         }
 
         .box2 ol {
@@ -248,6 +250,16 @@
             font-weight: bold;
             text-decoration: none;
         }
+
+        .front{
+            height: 250px;
+        }
+        .front input{
+            margin-top: 10px;
+        }
+        .front button{
+            margin-top: 10px;
+        }
     </style>
 </head>
 
@@ -287,11 +299,15 @@
                         <label>Longitude:</label>
                         <input type="text" placeholder="Enter longitude">
                         <label>Rainfall:</label>
-                        <input type="text" placeholder="Enter rainfall">
-                        <label>Temperature:</label>
-                        <input type="text" placeholder="Enter temperature">
-                        <label>Humidity:</label>
-                        <input type="text" placeholder="Enter humidity">
+                        <input type="text" placeholder="Enter rainfall (e.g. 0.70)">
+                        <label>Water Level:</label>
+                        <input type="text" placeholder="Enter water level (e.g 0.56)">
+                        <label>River Discharge:</label>
+                        <input type="text" placeholder="Enter river discharge (e.g. 0.66)">
+                        <label>Elevation:</label>
+                        <input type="text" placeholder="Enter Elevation (e.g. 0.80)">
+                        <label>Population Density:</label>
+                        <input type="text" placeholder="Enter population density (e.g. 3500)">
                     </div>
                     <button class="predict-btn" onclick="predictAdvancedFlood()">Predict</button>
                 </div>
@@ -382,12 +398,11 @@
         }
 
 
-
         async function predictAdvancedFlood() {
             const inputs = document.querySelectorAll(".form-group2 input");
-            let [latitude, longitude, rainfall, temperature, humidity] = Array.from(inputs).map(i => i.value);
+            let [latitude, longitude, rainfall, water_level, river_discharge, elevation, population_density] = Array.from(inputs).map(i => i.value);
 
-            if (!latitude || !longitude || !rainfall || !temperature || !humidity) {
+            if (!latitude || !longitude || !rainfall || !water_level || !river_discharge || !elevation || !population_density) {
                 alert("Please fill in all advanced prediction fields!");
                 return;
             }
@@ -400,8 +415,11 @@
                         latitude: parseFloat(latitude),
                         longitude: parseFloat(longitude),
                         rainfall: parseFloat(rainfall),
-                        temperature: parseFloat(temperature),
-                        humidity: parseFloat(humidity)
+                        water_level: parseFloat(water_level),
+                        river_discharge: parseFloat(river_discharge),
+                        elevation: parseFloat(elevation),
+                        population_density: parseFloat(population_density)
+
                     })
                 });
 
@@ -420,16 +438,6 @@
             }
         }
 
-
-        // function toggleMode() {
-        //     let card = document.getElementById("flip-card");
-        //     let mode = document.getElementById("mode-selector").value;
-        //     if (mode === "advanced") {
-        //         card.classList.add("flipped");
-        //     } else {
-        //         card.classList.remove("flipped");
-        //     }
-        // }
 
         function toggleChatbot() {
             let chatbot = document.getElementById("chatbot");
