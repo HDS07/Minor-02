@@ -1,2 +1,2 @@
 # MINOR-II (Flood Prediction)
-This repository contains flood prediction web application ML project where we were developed a web-based flood prediction system integrating a machine learning model and chatbot for public awareness and safety support. 
+This repository contains a flood prediction web application project, where we developed a web-based system that integrates a machine learning model with a chatbot to enhance public awareness and provide safety support.
